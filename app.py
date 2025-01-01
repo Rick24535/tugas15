@@ -1,27 +1,30 @@
 from flask import Flask
 import psycopg2
+import os
 
 app = Flask(__name__)
 
+# Gunakan connection string dari Supabase
+DATABASE_URL = "postgresql://postgres:[YOUR-PASSWORD]@db.vczirrnzbexdbuxcfrvg.supabase.co:5432/postgres"
+
 # Connect to PostgreSQL database
 def connect_db():
-    conn = psycopg2.connect(
-        host="localhost",  # akan digantikan dengan URL database di Render
-        database="your_db",  # ganti dengan nama database Anda
-        user="your_user",  # ganti dengan username database
-        password="your_password"  # ganti dengan password database
-    )
+    conn = psycopg2.connect(DATABASE_URL)
     return conn
 
 @app.route('/')
 def index():
-    conn = connect_db()
-    cur = conn.cursor()
-    cur.execute('SELECT * FROM your_table')
-    rows = cur.fetchall()
-    cur.close()
-    conn.close()
-    return {'data': rows}
+    try:
+        conn = connect_db()
+        cur = conn.cursor()
+        # Sesuaikan query ini dengan tabel di database Supabase Anda
+        cur.execute('SELECT * FROM your_table')  
+        rows = cur.fetchall()
+        cur.close()
+        conn.close()
+        return {'data': rows}
+    except Exception as e:
+        return {'error': str(e)}
 
 if __name__ == '__main__':
     app.run(debug=True)
